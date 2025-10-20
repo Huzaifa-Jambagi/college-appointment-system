@@ -1,0 +1,14 @@
+{
+  "name": "college-apointment-system",
+  "version": "1.0.0",
+  "description": "assignment for unQue cloudbook",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "huzaifa",
+  "license": "ISC"
+}
