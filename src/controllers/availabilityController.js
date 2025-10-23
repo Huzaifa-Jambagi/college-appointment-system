@@ -3,7 +3,7 @@ const Appointment = require('../models/appointmentModel');
 
 const createAvailability = async (req, res) => {
     try {
-        const { date, timeSlots } = req.body;
+        const { date, slots } = req.body;
 
         const startDay = new Date(date);
         startDay.setHours(0, 0, 0, 0); 
@@ -12,10 +12,13 @@ const createAvailability = async (req, res) => {
         endDay.setHours(23, 59, 59, 999); 
 
         if (req.user.role !== 'professor') {
-            return res.status(403).json({ success: false, message: 'Only professors can create availability' });
+            return res.status(403).json({
+                 success: false,
+                  message: 'Only professors can create availability'
+                 });
         }
 
-        if (!date || !timeSlots || timeSlots.length === 0) {
+        if (!date || !slots || slots.length === 0) {
             return res.status(400).json({ 
                 success: false, 
                 message: 'Date and time slots are required' 
@@ -23,20 +26,22 @@ const createAvailability = async (req, res) => {
         }
         const professor = req.user.id;
 
-        const existingAvailability = await Availability.findOne({
+        let existingAvailability = await Availability.findOne({
              professor,
               date :{$gte:startDay, $lte:endDay}
             })
 
         if (existingAvailability) {
 
-            timeSlots.forEach((slot) => {
+            slots.forEach((slot) => {
                 if (!existingAvailability.slots.includes(slot)) {
                     existingAvailability.slots.push(slot)
                 }
             });
          await existingAvailability.save();
-
+      
+         existingAvailability = await existingAvailability.populate('professor', 'name');
+         
      res.status(200).json({ 
                 success: true, 
                 message: 'Availability updated',
@@ -44,15 +49,18 @@ const createAvailability = async (req, res) => {
             });
 
         } else {
-            const newAvailability=await Availability.create({
+            let newAvailability=await Availability.create({
                professor,
                 date,
-                slots: timeSlots,
+                slots
             })
+
+            newAvailability = await newAvailability.populate('professor', 'name');
+
             res.status(201).json({ 
                 success: true, 
                 message:'Availability created successfully',
-                 data:newAvailability 
+                data:newAvailability 
             });
         }
     } catch (error) {
@@ -72,7 +80,7 @@ const checkAvailability = async (req, res) => {
         const endDay= new Date(date);
         endDay.setHours(23, 59, 59, 999);
 
-        const availability = await Availability.findOne(
+        let  availability = await Availability.findOne(
             {
                  professor,
                  date: { $gte:startDay, $lte:endDay }
@@ -85,6 +93,8 @@ const checkAvailability = async (req, res) => {
                  message: 'No availability found for the given professor and date' 
             });
         }
+        
+        availability= await availability.populate('professor', 'name');
 
         const bookedAppointments = await Appointment.find(
             {
@@ -98,8 +108,9 @@ const checkAvailability = async (req, res) => {
 
         const availableSlots = availability.slots.filter(slot => !bookedSlots.includes(slot));
 
-        const checkAvailability={
-           professor,
+        const availabilityData={
+           professorId:professor,
+           professorName:availability.professor.name,
            date: startDay,
            availableSlots
         }
@@ -107,7 +118,7 @@ const checkAvailability = async (req, res) => {
         res.status(200).json({ 
             success: true, 
             message: 'Availability fetched successfully',
-            data:checkAvailability
+            data:availabilityData
          });
         
     } catch (error) {

@@ -45,13 +45,15 @@ const createAppointment = async (req, res) => {
         });
     }
 
-    const appointment = await Appointment.create({
+    let appointment = await Appointment.create({
       student: req.user.id,
       professor,
       date,
       slot,
       status: "booked",
     });
+
+   appointment=await appointment.populate('professor','name email');
 
     res.status(201).json({
       success: true,
@@ -85,7 +87,7 @@ const cancelAppointment = async (req, res) => {
                 message: 'Appointment not found'
             });
         }
-        
+
          if(req.user.id!==appointment.professor.toString()){
             return res.status(403).json({
                 success:false,
