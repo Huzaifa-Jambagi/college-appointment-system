@@ -12,11 +12,11 @@ const createAvailability = async (req, res) => {
         endDay.setHours(23, 59, 59, 999); 
 
         if (req.user.role !== 'professor') {
-            return res.status(403).send({ success: false, message: 'Only professors can create availability' });
+            return res.status(403).json({ success: false, message: 'Only professors can create availability' });
         }
 
         if (!date || !timeSlots || timeSlots.length === 0) {
-            return res.status(400).send({ 
+            return res.status(400).json({ 
                 success: false, 
                 message: 'Date and time slots are required' 
              });
@@ -37,7 +37,7 @@ const createAvailability = async (req, res) => {
             });
          await existingAvailability.save();
 
-     res.status(200).send({ 
+     res.status(200).json({ 
                 success: true, 
                 message: 'Availability updated',
                 data: existingAvailability 
@@ -49,14 +49,14 @@ const createAvailability = async (req, res) => {
                 date,
                 slots: timeSlots,
             })
-            res.status(201).send({ 
+            res.status(201).json({ 
                 success: true, 
                 message:'Availability created successfully',
                  data:newAvailability 
             });
         }
     } catch (error) {
- res.status(500).send({ 
+ res.status(500).json({ 
             success: false, 
             message: `Error in creating availability: ${error.message}` 
         });    
@@ -80,7 +80,7 @@ const checkAvailability = async (req, res) => {
             });
 
         if(!availability){
-            return res.status(404).send({ 
+            return res.status(404).json({ 
                 success: false,
                  message: 'No availability found for the given professor and date' 
             });
@@ -104,14 +104,14 @@ const checkAvailability = async (req, res) => {
            availableSlots
         }
 
-        res.status(200).send({ 
+        res.status(200).json({ 
             success: true, 
             message: 'Availability fetched successfully',
             data:checkAvailability
          });
         
     } catch (error) {
-        res.status(500).send({ 
+        res.status(500).json({ 
             success: false, 
             message: `Error in checking availability: 
             ${error.message}`
