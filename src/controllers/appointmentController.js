@@ -1,7 +1,7 @@
 const Appointment = require("../models/appointmentModel");
 const Availability = require("../models/availabilityModel");
 
-const createAppointment = async (req, res) => {
+const bookAppointment = async (req, res) => {
   try {
     const { professor, date, slot } = req.body;
 
@@ -22,7 +22,6 @@ const createAppointment = async (req, res) => {
       professor,
       date: { $gte: startDay, $lte: endDay },
       slot,
-      status: "booked",
     });
 
     if (alreadyBooked) {
@@ -50,10 +49,9 @@ const createAppointment = async (req, res) => {
       professor,
       date,
       slot,
-      status: "booked",
     });
 
-   appointment=await appointment.populate('professor','name email');
+    appointment=await appointment.populate('professor','name email');
 
     res.status(201).json({
       success: true,
@@ -95,13 +93,11 @@ const cancelAppointment = async (req, res) => {
             });
         }
 
-        appointment.status = 'cancelled';
-        await appointment.save();
+        await appointment.deleteOne();
 
         res.status(200).json({
             success: true,
             message: 'Appointment cancelled successfully',
-            data: appointment
         });
     } catch (error) {
         res.status(500).json({
@@ -120,10 +116,13 @@ const getStudentAppointments = async (req, res) => {
         })
       
     }
-        const appointments = await Appointment.find({student:req.user.id}).populate('professor','name email');
+        const appointments = await Appointment.find({
+          student:req.user.id
+        }).populate('professor','name email');
+
         res.status(200).json({
             success:true,
-            message:'Appointments fetched successfully',
+            message: appointments.length===0? 'No appointments found':'Appointments fetched successfully',
             data:appointments
         });
     }
@@ -134,4 +133,5 @@ const getStudentAppointments = async (req, res) => {
         });
     }
 }
-module.exports = {createAppointment, cancelAppointment, getStudentAppointments};
+
+module.exports = {bookAppointment, cancelAppointment, getStudentAppointments};

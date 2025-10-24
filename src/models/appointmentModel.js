@@ -20,13 +20,7 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    status: {
-      type: String,
-      enum: ["booked", "cancelled"],
-      default: "booked",
-    },
-  },
-  { timestamps: true }
+  }
 );
 
 appointmentSchema.index({ professor: 1, date: 1, slot: 1 }, { unique: true });

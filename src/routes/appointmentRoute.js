@@ -1,9 +1,9 @@
 const express=require('express');
 const router=express.Router();
-const {createAppointment, cancelAppointment, getStudentAppointments}=require('../controllers/appointmentController');
+const {bookAppointment, cancelAppointment, getStudentAppointments}=require('../controllers/appointmentController');
 const authMiddleware=require('../middleware/authMiddleware');
 
-router.post('/book',authMiddleware,createAppointment);
+router.post('/book',authMiddleware,bookAppointment);
 
 router.delete('/cancel/:appointmentId',authMiddleware,cancelAppointment);
 

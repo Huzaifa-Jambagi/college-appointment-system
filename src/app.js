@@ -30,3 +30,5 @@ app.listen(PORT, async () => {
 app.get('/', (req, res) => {
   res.send(' API is running');
 });
+
+module.exports = app;

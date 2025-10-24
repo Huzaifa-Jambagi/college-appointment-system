@@ -100,8 +100,6 @@ const checkAvailability = async (req, res) => {
             {
                  professor, 
                  date: { $gte:startDay, $lte:endDay }, 
-                 status: 'booked' 
-                
             });
 
         const bookedSlots = bookedAppointments.map(appointment => appointment.slot);
